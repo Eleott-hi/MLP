@@ -73,6 +73,9 @@ build:
 	cmake -S . -B $(BUILD_DIR)
 	cmake --build $(BUILD_DIR)
 
+test:
+	make -C tests
+
 clean:
 	rm -rfv $(BUILD_DIR)* $(INSTALL_DIR) logs/ \
 	*.tar.gz *.aux *.log *.dvi *.out *.toc  *.user
@@ -94,5 +97,5 @@ cppcheck:
 #   SPEC                                         #
 #------------------------------------------------#
 
-.PHONY: install uninstall clean dvi dist build linter cppcheck
+.PHONY: all run install uninstall dvi dist build test clean linter linter-fix cppcheck
 .SILENT:
