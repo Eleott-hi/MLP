@@ -1,8 +1,10 @@
 # PERSONAL
 build*/
+datasets/
 .vscode*/
 report*/
 *.user
+.DS_Store
 
 # Prerequisites
 *.d

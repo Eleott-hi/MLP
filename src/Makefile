@@ -1,77 +1,98 @@
-OS := $(shell uname -s)
-PROJECT_NAME := MLP
-VERSION := 1.0
-INSTALLATION_PATH := ~/
+# @authors   pintoved (Pinto Veda)
+#            cgreenbe (Classie Greenbeard)
+#            bgreydon (Bail Greydon)
+
+#------------------------------------------------#
+#   INGREDIENTS                                  #
+#------------------------------------------------#
+# NAME           project name
+# VERSION        build version
+#
+# OS             operating system
+# FILES          all .cc .h files
+#
+# INSTALL_DIR    installation path
+# FILES          executable file name
+#
+# cmake          build system executable
+
+NAME         := MLP
+VERSION      := 1.0
+
+OS           := $(shell uname -s)
+FILES        := $(shell find . -regex '.*\(cc\|h\)' -not -path "*shared*")
+
+BUILD_DIR    := ../build
+INSTALL_DIR  := ../install
 
 ifeq ($(OS), Darwin)
-EXEC_FILE_NAME := $(PROJECT_NAME).app
+APP		     := $(BUILD_DIR)/$(NAME).app
 else
-EXEC_FILE_NAME := $(PROJECT_NAME)
+APP		     := $(BUILD_DIR)/$(NAME)
 endif
 
 ifeq ($(OS), Darwin)
-QMAKE := qmake
+OPEN 	     := open 
 else
-QMAKE := qmake6
+OPEN	     := ./
 endif
 
-MAIN_SOURCES := $(shell find main -name "*.cc" -not -path "*shared*") \
-		        $(shell find main -name "*.h" -not -path "*shared*")
+#------------------------------------------------#
+#   RECIPES                                      #
+#------------------------------------------------#
+# all        default goal
+# install
+# uninstall
+# clean      remove binary
+# dvi
+# dist
+# build      build program
+# linter     run code style check
+# linter-fix run code style fix
+# cppcheck   run static code analys
 
-TESTS_SOURCES := $(shell find unit-tests -name "*.cc") \
-		         $(shell find unit-tests -name "*.h")
+all: run
 
-all: install run
+run: build
+	$(OPEN)$(APP)
 
 install: build
-	cp build/$(EXEC_FILE_NAME) $(INSTALLATION_PATH)
+	mkdir -p $(INSTALL_DIR)
+	cp -r $(APP) $(INSTALL_DIR)
 
 uninstall:
-	rm -v $(INSTALLATION_PATH)$(EXEC_FILE_NAME)
-
-clean:
-	rm -rfv *.tar.gz \
-	*.aux *.log *.dvi *.out *.toc *.user \
-	build*/ logs/ unit-tests/tests.out
+	rm -rfv $(INSTALL_DIR)
 
 dvi:
 	latex docs.tex docs.dvi
 
 dist: build dvi
-	tar -czvf $(PROJECT_NAME)-$(VERSION).tar.gz \
-	build/$(EXEC_FILE_NAME) \
-	docs.dvi \
-	main/* \
-	unit-tests/* \
-	Makefile
+	tar -czvf $(NAME)-$(VERSION).tar.gz */ *.cc *.h *.txt docs.dvi Makefile					
 
-tests:
-	cd unit-tests; make
+build:
+	cmake -S . -B $(BUILD_DIR)
+	cmake --build $(BUILD_DIR)
 
-run:
-ifeq ($(OS), Darwin)
-	cd $(INSTALLATION_PATH); open $(EXEC_FILE_NAME)
-else
-	cd $(INSTALLATION_PATH); ./$(EXEC_FILE_NAME)
-endif
+clean:
+	rm -rfv $(BUILD_DIR)* $(INSTALL_DIR) logs/ \
+	*.tar.gz *.aux *.log *.dvi *.out *.toc  *.user
 
-build: clean
-	mkdir -p build
-	cp -r main/* build/
-	cd build; $(QMAKE)
-	cd build; make
+linter:
+	clang-format -n -style=Google $(FILES)
+	
+linter-fix:
+	clang-format -i -style=Google $(FILES)
 
 cppcheck:
 	cppcheck --language=c++ --std=c++17 \
 	--enable=all \
-	--suppress=unusedFunction \
 	--suppress=missingInclude \
-	$(MAIN_SOURCES) \
-	$(TESTS_SOURCES)
+	--suppress=unusedFunction \
+	$(FILES)
 
-linter:
-	clang-format -n -style=google \
-	$(MAIN_SOURCES) \
-	$(TESTS_SOURCES)
+#------------------------------------------------#
+#   SPEC                                         #
+#------------------------------------------------#
 
-check: cppcheck linter
+.PHONY: install uninstall clean dvi dist build linter cppcheck
+.SILENT:
