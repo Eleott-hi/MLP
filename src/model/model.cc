@@ -108,17 +108,18 @@ void Model::CrossValidation(size_t hidden_layers, size_t epoch, size_t folds,
     exit = false, training = true;
 
     // ========================= Thread ===========================
-    std::thread([&, hidden_layers, folds, epoch, learning_rate]() {
-      if (train_data_.empty() || test_data_.empty()) {
+    std::thread([&, train_data = train_data_, test_data = test_data_,
+                 hidden_layers, folds, epoch, learning_rate]() {
+      if (train_data.empty() || test_data.empty()) {
         emit signal_handler_.ShowError(
-            (train_data_.empty() ? "Training" : "Test") +
+            (train_data.empty() ? "Training" : "Test") +
             std::string(" data is empty. Please, load data from file"));
 
       } else {
         auto tmp = std::make_unique<NeuralNetwork>(network_->GetStrategy(),
                                                    Config{hidden_layers + 2});
-        tmp->CrossValidation(train_data_, test_data_, folds, epoch,
-                             learning_rate, exit);
+        tmp->CrossValidation(train_data, test_data, folds, epoch, learning_rate,
+                             exit);
 
         if (!exit) {
           network_ = std::move(tmp);
@@ -145,16 +146,17 @@ void Model::Train(size_t hidden_layers, size_t epoch, double learning_rate) {
     exit = false, training = true;
 
     // ========================= Thread ===========================
-    std::thread([&, hidden_layers, epoch, learning_rate]() {
-      if (train_data_.empty() || test_data_.empty()) {
+    std::thread([&, train_data = train_data_, test_data = test_data_,
+                 hidden_layers, epoch, learning_rate]() {
+      if (train_data.empty() || test_data.empty()) {
         emit signal_handler_.ShowError(
-            (std::string)(train_data_.empty() ? "Training" : "Test") +
+            (std::string)(train_data.empty() ? "Training" : "Test") +
             " data is empty. Please, load data from file");
 
       } else {
         auto tmp = std::make_unique<NeuralNetwork>(network_->GetStrategy(),
                                                    Config{hidden_layers + 2});
-        tmp->Train(train_data_, test_data_, epoch, learning_rate, exit);
+        tmp->Train(train_data, test_data, epoch, learning_rate, exit);
 
         if (!exit) {
           network_ = std::move(tmp);
@@ -181,8 +183,8 @@ void Model::Test(double percentage) {
   if (!testing) {
     exit = false, testing = true;
     // ========================= Thread ===========================
-    std::thread([&, percentage]() {
-      if (test_data_.empty()) {
+    std::thread([&, test_data = test_data_, percentage]() {
+      if (test_data.empty()) {
         emit signal_handler_.ShowError(
             "Test data is empty. Please, load data from file");
         emit signal_handler_.TestingCompleted();
@@ -192,8 +194,8 @@ void Model::Test(double percentage) {
                                                    network_->GetConfig());
         std::list<Letter> test_data_part;
         test_data_part.insert(
-            test_data_part.begin(), test_data_.begin(),
-            std::next(test_data_.begin(), test_data_.size() * percentage));
+            test_data_part.begin(), test_data.begin(),
+            std::next(test_data.begin(), test_data.size() * percentage));
         tmp->Test(test_data_part, exit);
       }
 
