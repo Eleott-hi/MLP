@@ -11,15 +11,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE
 
-    # RELEASE
-    DEBUG
+    RELEASE
+
+    # DEBUG
 )
 
 set(QT_LIBS Widgets)
 set(LIBS
     shared
-
-    # common
 )
 set(EXCLUDE_DIRS tests ${LIBS})
 
@@ -60,14 +59,6 @@ endforeach(i)
 foreach(i ${LIBS})
     target_link_libraries(${PROJECT_NAME} PRIVATE ${i})
 endforeach(i)
-
-if(CMAKE_BUILD_TYPE STREQUAL RELEASE)
-    # target_compile_definitions(shared PUBLIC
-    # QT_NO_DEBUG_OUTPUT
-    # QT_NO_INFO_OUTPUT
-    # QT_NO_WARNING_OUTPUT
-    # )
-endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
