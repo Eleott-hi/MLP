@@ -80,7 +80,7 @@ In the case of cross validation, the MLP with better metrics will be written ins
 
 At the end, the weight information area will be updated. 
 
-![Learning](misc/images/learning.png)
+![Learning](misc/images/learning.gif)
 
 ![Cross validation](misc/images/CrossValidation.gif)
 
