@@ -82,7 +82,7 @@ At the end, the weight information area will be updated.
 
 ![Learning](misc/images/learning.png)
 
-![Cross validation](misc/images/cross_validation.png)
+![Cross validation](misc/images/CrossValidation.gif)
 
 ## Testing
 
