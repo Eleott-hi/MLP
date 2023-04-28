@@ -58,7 +58,7 @@ You can also upload an image in bmp format.
 
 Right-click to clear the drawing area.
 
-![Recognition](misc/images/recognition.png)
+![Recognition](misc/images/recognition.gif)
 
 
 
